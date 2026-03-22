@@ -3,25 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-  <title>사랑의병원 감염관리 슈팅게임</title>
+  <title>사랑의병원 감염관리 교육 게임</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <div id="app">
     <section id="startScreen" class="overlay visible">
-      <div class="panel">
-        <div class="badge">Ansan Sarang Hospital</div>
-        <h1>감염관리 슈팅게임</h1>
-        <p class="sub">클린이와 버블이로 병균을 소독하세요</p>
+      <div class="panel start-panel">
+        <div class="start-top">
+          <div>
+            <div class="badge">Ansan Sarang Hospital</div>
+            <h1>감염관리 슈팅게임</h1>
+            <p class="sub">스테이지별 감염병에 맞는 예방 도구를 익히며 플레이하세요.</p>
+          </div>
+          <img id="startMascot" class="start-mascot" src="./assets/start_mascot.png" alt="클린이와 버블이" />
+        </div>
+
         <form id="startForm" class="form">
           <label><span>부서명</span><input id="departmentInput" type="text" maxlength="20" placeholder="예: 감염관리실" /></label>
           <label><span>이름</span><input id="nameInput" type="text" maxlength="20" placeholder="예: 홍길동" /></label>
-          <div class="buttonRow"><button id="startBtn" type="submit" class="primary">게임 시작</button></div>
+          <div class="buttonRow">
+            <button id="startBtn" type="submit" class="primary">게임 시작</button>
+          </div>
         </form>
+
         <div class="guide">
-          <strong>조작 방법</strong>
-          <p>PC: ← → 또는 A D 이동</p>
-          <p>모바일: 게임 화면에서 좌우로 드래그</p>
+          <strong>게임 목적</strong>
+          <p>① 병균을 피하고 제거하기</p>
+          <p>② 스테이지별 예방 도구를 익히기</p>
+          <p>③ 아이템을 먹어 방어와 공격을 강화하기</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="stageScreen" class="overlay hidden">
+      <div class="panel">
+        <div class="badge">Stage Guide</div>
+        <h2 id="stageTitle">Stage 1</h2>
+        <div class="stage-guide-grid">
+          <div class="stage-preview-wrap">
+            <canvas id="stagePreview" width="160" height="160" aria-label="스테이지 적 미리보기"></canvas>
+          </div>
+          <div class="stage-text">
+            <p id="stageDesc" class="sub"></p>
+            <div class="lesson">
+              <strong>예방 포인트</strong>
+              <p id="stageToolText"></p>
+            </div>
+            <div class="lesson">
+              <strong>이번 스테이지 추천 도구</strong>
+              <p id="recommendedItemText"></p>
+            </div>
+          </div>
+        </div>
+        <div class="buttonRow">
+          <button id="stageConfirmBtn" type="button" class="primary">이해했어요</button>
         </div>
       </div>
     </section>
@@ -30,26 +66,38 @@
       <div class="panel">
         <h2>게임 오버</h2>
         <p id="finalInfo" class="resultText"></p>
-        <div class="buttonRow"><button id="restartBtn" type="button" class="primary">다시 시작</button></div>
+        <div class="lesson">
+          <strong>복습</strong>
+          <p>손위생, 마스크, 보호구와 환경소독은 감염병 종류에 따라 핵심적인 예방 수단이 됩니다.</p>
+        </div>
+        <div class="buttonRow">
+          <button id="restartBtn" type="button" class="primary">다시 시작</button>
+        </div>
       </div>
     </section>
 
     <header class="hud">
       <div>점수 <strong id="scoreText">0</strong></div>
       <div>체력 <strong id="hpText">5</strong></div>
-      <div>웨이브 <strong id="waveText">1</strong></div>
-      <div>무기 <strong id="weaponText">기본</strong></div>
+      <div>스테이지 <strong id="waveText">1</strong></div>
+      <div>공격 <strong id="weaponText">기본</strong></div>
     </header>
 
+    <div class="subHud">
+      <div>현재 적 <strong id="enemyNameText">일반 세균</strong></div>
+      <div>예방 도구 <strong id="preventionText">손위생</strong></div>
+    </div>
+
     <div id="gameWrap">
-      <canvas id="gameCanvas" width="420" height="760"></canvas>
+      <canvas id="gameCanvas" width="420" height="760" aria-label="감염관리 슈팅게임"></canvas>
     </div>
 
     <footer class="footer">
       <span id="playerInfo">플레이어 미입력</span>
-      <span>남색 테마 · 모바일 개선</span>
+      <span id="helperText">버블이 비활성화</span>
     </footer>
   </div>
+
   <script src="./game.js"></script>
 </body>
 </html>
