@@ -41,12 +41,12 @@ images.enemySheet.src = "./assets/enemy_sheet.png";
 images.startMascot.src = "./assets/start_mascot.png";
 
 const PLAYER_FRAMES = {
-  idle:   {x: 70,  y: 120, w: 250, h: 260},
-  move1:  {x: 420, y: 145, w: 250, h: 240},
-  move2:  {x: 610, y: 145, w: 250, h: 240},
-  attack: {x: 920, y: 145, w: 230, h: 235},
-  bubbleIdle:   {x: 75,  y: 420, w: 250, h: 220},
-  bubbleAttack: {x: 1070, y: 410, w: 250, h: 240}
+  idle:   { x: 70,  y: 120, w: 250, h: 260 },
+  move1:  { x: 420, y: 145, w: 210, h: 240 },
+  move2:  { x: 650, y: 145, w: 210, h: 240 },
+  attack: { x: 920, y: 145, w: 150, h: 235 }, 
+  bubbleIdle:   { x: 1030, y: 150, w: 150, h: 155 },
+  bubbleAttack: { x: 1070, y: 410, w: 250, h: 200 }
 };
 
 const ENEMY_FRAMES = {
@@ -187,6 +187,21 @@ function updateHud() {
   preventionText.textContent = stage.prevention;
   helperText.textContent = state.player.bubbleActive ? "버블이 활성화 · 보조 공격 중" : "버블이 비활성화";
   playerInfo.textContent = state.playerName ? `${state.department || "부서 미입력"} · ${state.playerName}` : "플레이어 미입력";
+}
+
+function drawBackground() {
+  if (images.bg.complete) {
+    const img = images.bg;
+    const scale = Math.max(W / img.width, H / img.height);
+    const dw = img.width * scale;
+    const dh = img.height * scale;
+    const dx = (W - dw) / 2;
+    const dy = (H - dh) / 2;
+
+    ctx.drawImage(img, dx, dy, dw, dh);
+    ctx.fillStyle = "rgba(8,18,38,0.62)";
+    ctx.fillRect(0, 0, W, H);
+  }
 }
 
 function showStageGuide(stageIndex) {
@@ -485,36 +500,29 @@ function update(dt) {
 }
 
 function drawPlayer() {
-  if (!images.playerSheet.complete) return;
   const p = state.player;
-  const moving = (state.keys["arrowleft"] || state.keys["arrowright"] || state.touchActive);
+  const moving = keys.left || keys.right || state.touchActive;
+
   let frame = PLAYER_FRAMES.idle;
   if (p.attackTimer > 0) frame = PLAYER_FRAMES.attack;
-  else if (moving) frame = Math.sin(state.animationTime * 10) > 0 ? PLAYER_FRAMES.move1 : PLAYER_FRAMES.move2;
+  else if (moving) frame = Math.sin(state.animationTime * 10) > 0
+    ? PLAYER_FRAMES.move1
+    : PLAYER_FRAMES.move2;
 
-  const drawW = 64, drawH = 66;
-  const x = p.x - drawW / 2;
-  const y = p.y - drawH / 2;
-
-  ctx.save();
-  if (p.hitFlash > 0) ctx.globalAlpha = 0.75;
-  drawSprite(ctx, images.playerSheet, frame, x, y, drawW, drawH);
+  drawSprite(ctx, images.playerSheet, frame, p.x - 29, p.y - 32, 58, 64);
 
   if (p.bubbleActive) {
-    const bubbleFrame = p.attackTimer > 0 ? PLAYER_FRAMES.bubbleAttack : PLAYER_FRAMES.bubbleIdle;
-    const bx = p.x + 18 + Math.sin(state.animationTime * 5) * 4;
-    const by = p.y - 8 + Math.cos(state.animationTime * 4) * 3;
-    drawSprite(ctx, images.playerSheet, bubbleFrame, bx - 28, by - 28, 56, 56);
-  }
+    const bubbleFrame = p.attackTimer > 0
+      ? PLAYER_FRAMES.bubbleAttack
+      : PLAYER_FRAMES.bubbleIdle;
 
-  if (p.shield > 0) {
-    ctx.strokeStyle = "rgba(127,240,185,0.95)";
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 32, 0, Math.PI * 2);
-    ctx.stroke();
+    const bx = p.x + 28 + Math.sin(state.animationTime * 5) * 3;
+    const by = p.y - 8 + Math.cos(state.animationTime * 4) * 3;
+    const bw = p.attackTimer > 0 ? 42 : 34;
+    const bh = p.attackTimer > 0 ? 36 : 34;
+
+    drawSprite(ctx, images.playerSheet, bubbleFrame, bx - bw / 2, by - bh / 2, bw, bh);
   }
-  ctx.restore();
 }
 
 function drawEnemy(enemy) {
