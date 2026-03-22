@@ -2,7 +2,7 @@
 :root{
   --bg:#08101f;--panel:rgba(10,24,48,.94);--line:rgba(255,255,255,.14);
   --text:#eff4ff;--muted:#b8c6e8;--navy:#17366f;--navy2:#204d9a;
-  --accent:#6ec6ff;--good:#7ff0b9;--warn:#ffd27d;
+  --accent:#6ec6ff;--good:#7ff0b9
 }
 html,body{
   margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;
@@ -10,10 +10,7 @@ html,body{
   color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif
 }
 body{position:fixed;inset:0}
-#app{
-  width:min(100vw,460px);height:100dvh;margin:0 auto;display:flex;flex-direction:column;
-  overflow:hidden;position:relative
-}
+#app{width:min(100vw,460px);height:100dvh;margin:0 auto;display:flex;flex-direction:column;overflow:hidden;position:relative}
 .hud,.subHud,.footer{
   display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;flex:0 0 auto;
   padding:10px 12px;border:1px solid var(--line);background:rgba(8,15,30,.72);backdrop-filter:blur(6px)
@@ -43,13 +40,24 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 h1,h2{margin:0 0 8px}
 .sub,.resultText{margin:0;color:var(--muted)}
 .start-top{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:center}
-.start-mascot{
-  width:100%;max-width:180px;justify-self:end;image-rendering:pixelated;filter:drop-shadow(0 10px 18px rgba(0,0,0,.28));
-  animation:floaty 2.8s ease-in-out infinite
+.mascot-stage{
+  min-height:160px;display:flex;justify-content:center;align-items:center;
+  background:radial-gradient(circle at center,rgba(110,198,255,.12),transparent 65%);
 }
-@keyframes floaty{
-  0%,100%{transform:translateY(0) rotate(0deg)}
-  50%{transform:translateY(-8px) rotate(-1.5deg)}
+.start-mascot{
+  width:100%;max-width:180px;image-rendering:pixelated;
+  filter:drop-shadow(0 10px 18px rgba(0,0,0,.28));
+  animation:mascotBob 2.6s ease-in-out infinite, mascotPulse 1.6s ease-in-out infinite
+}
+@keyframes mascotBob{
+  0%,100%{transform:translateY(0) rotate(0deg) scale(1)}
+  25%{transform:translateY(-4px) rotate(-1deg) scale(1.01)}
+  50%{transform:translateY(-10px) rotate(0deg) scale(1.03)}
+  75%{transform:translateY(-4px) rotate(1deg) scale(1.01)}
+}
+@keyframes mascotPulse{
+  0%,100%{filter:drop-shadow(0 10px 18px rgba(0,0,0,.28))}
+  50%{filter:drop-shadow(0 14px 24px rgba(110,198,255,.22))}
 }
 .form{display:grid;gap:12px;margin-top:14px}
 label span{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
@@ -59,10 +67,7 @@ input{
 }
 input:focus{border-color:var(--accent)}
 .buttonRow{display:flex;gap:10px;margin-top:10px}
-button{
-  appearance:none;border:none;border-radius:14px;padding:14px 18px;font-size:16px;
-  font-weight:700;cursor:pointer;width:100%
-}
+button{appearance:none;border:none;border-radius:14px;padding:14px 18px;font-size:16px;font-weight:700;cursor:pointer;width:100%}
 button.primary{color:#fff;background:linear-gradient(180deg,var(--navy2),var(--navy))}
 .guide,.lesson{
   margin-top:14px;padding:12px;border-radius:14px;background:rgba(255,255,255,.04);
@@ -70,9 +75,7 @@ button.primary{color:#fff;background:linear-gradient(180deg,var(--navy2),var(--n
 }
 .guide p,.lesson p{margin:0;color:var(--muted)}
 .stage-guide-grid{display:grid;grid-template-columns:170px 1fr;gap:14px;align-items:center}
-.stage-preview-wrap{
-  background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:10px;display:flex;justify-content:center
-}
+.stage-preview-wrap{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:10px;display:flex;justify-content:center}
 #stagePreview{width:140px;height:140px;image-rendering:pixelated}
 .stage-text{display:grid;gap:10px}
 @media (max-width:480px){
