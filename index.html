@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <title>사랑의병원 감염관리 슈팅게임</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
@@ -21,7 +21,7 @@
         <div class="guide">
           <strong>조작 방법</strong>
           <p>PC: ← → 또는 A D 이동</p>
-          <p>모바일: 화면 하단을 좌우로 드래그</p>
+          <p>모바일: 게임 화면에서 좌우로 드래그</p>
         </div>
       </div>
     </section>
@@ -41,11 +41,13 @@
       <div>무기 <strong id="weaponText">기본</strong></div>
     </header>
 
-    <canvas id="gameCanvas" width="420" height="760"></canvas>
+    <div id="gameWrap">
+      <canvas id="gameCanvas" width="420" height="760"></canvas>
+    </div>
 
     <footer class="footer">
       <span id="playerInfo">플레이어 미입력</span>
-      <span>남색 테마 · 웹 배포용</span>
+      <span>남색 테마 · 모바일 개선</span>
     </footer>
   </div>
   <script src="./game.js"></script>
