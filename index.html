@@ -1,31 +1,63 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>감염관리 게임</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <title>감염관리 PPE 선택 게임</title>
+  <link rel="stylesheet" href="./style.css" />
 </head>
-
 <body>
+<main id="app">
+  <section id="startScreen" class="overlay">
+    <div class="panel">
+      <div class="badge">SRGH Infection Control</div>
+      <h1>감염관리 PPE 선택 게임</h1>
+      <p class="sub">내려오는 환자에게 필요한 감염 예방 장비를 빠르게 선택하세요.</p>
+      <img class="startMascot" src="./assets/mascot_clean_bubble.png" alt="클린이와 버블이" />
+      <form id="startForm" class="form">
+        <label>부서명 <input id="deptInput" placeholder="예: 감염관리실" maxlength="20" /></label>
+        <label>이름 <input id="nameInput" placeholder="예: 홍길동" maxlength="20" /></label>
+        <button class="primary" type="submit">게임 시작</button>
+      </form>
+      <div class="guide">
+        <strong>게임 방법</strong>
+        <p>환자명이 보이면 아래 장비 아이콘을 선택하세요.</p>
+        <p>정답 장비를 선택한 상태로 환자가 도착하면 점수를 얻습니다.</p>
+      </div>
+    </div>
+  </section>
 
-<div id="game">
-  <header>
-    점수 <span id="score">0</span> |
-    체력 <span id="hp">3</span>
-  </header>
+  <section id="gameOverScreen" class="overlay hidden">
+    <div class="panel">
+      <h2>게임 종료</h2>
+      <p id="finalText" class="sub"></p>
+      <button id="restartBtn" class="primary" type="button">다시 시작</button>
+    </div>
+  </section>
 
-  <canvas id="canvas" width="420" height="700"></canvas>
+  <header class="hud"><div>점수 <strong id="scoreText">0</strong></div><div>체력 <strong id="hpText">1</strong></div></header>
 
-  <div class="controls">
-    <button onclick="selectItem('mask')">마스크</button>
-    <button onclick="selectItem('n95')">N95</button>
-    <button onclick="selectItem('gown')">가운</button>
-    <button onclick="selectItem('needle')">안전바늘</button>
+  <div id="gameWrap">
+    <canvas id="gameCanvas" width="420" height="760"></canvas>
   </div>
 
-</div>
+  <div id="feedback" class="feedback">환자에게 맞는 장비를 선택하세요.</div>
 
-<script src="game.js"></script>
+  <nav class="controls" aria-label="장비 선택">
+    <button class="itemBtn" data-item="mask" type="button">
+      <span>마스크</span><img src="./assets/icon_mask.png" alt="마스크" />
+    </button>
+    <button class="itemBtn" data-item="n95" type="button">
+      <span>N95 마스크</span><img src="./assets/icon_n95.png" alt="N95 마스크" />
+    </button>
+    <button class="itemBtn" data-item="gown" type="button">
+      <span>가운&장갑</span><img src="./assets/icon_gown.png" alt="가운과 장갑" />
+    </button>
+    <button class="itemBtn" data-item="syringe" type="button">
+      <span>안전바늘</span><img src="./assets/icon_syringe.png" alt="안전바늘" />
+    </button>
+  </nav>
+</main>
+<script src="./game.js"></script>
 </body>
 </html>
