@@ -1,87 +1,26 @@
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{
-  --bg:#08101f;--panel:rgba(10,24,48,.94);--line:rgba(255,255,255,.14);
-  --text:#eff4ff;--muted:#b8c6e8;--navy:#17366f;--navy2:#204d9a;
-  --accent:#6ec6ff;--good:#7ff0b9
+body {
+  margin:0;
+  background:#0b1e3a;
+  text-align:center;
+  color:white;
 }
-html,body{
-  margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;
-  background:radial-gradient(circle at top,#13284f 0%,var(--bg) 55%),var(--bg);
-  color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif
+
+#game {
+  max-width:420px;
+  margin:auto;
 }
-body{position:fixed;inset:0}
-#app{width:min(100vw,460px);height:100dvh;margin:0 auto;display:flex;flex-direction:column;overflow:hidden;position:relative}
-.hud,.subHud,.footer{
-  display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;flex:0 0 auto;
-  padding:10px 12px;border:1px solid var(--line);background:rgba(8,15,30,.72);backdrop-filter:blur(6px)
+
+canvas {
+  width:100%;
+  background:black;
 }
-.hud{margin-top:8px;border-radius:14px 14px 0 0}
-.subHud{border-top:none;border-bottom:none;font-size:13px;color:var(--muted)}
-.footer{margin-bottom:8px;border-radius:0 0 14px 14px;color:var(--muted);font-size:12px}
-#gameWrap{
-  flex:1;min-height:0;position:relative;overflow:hidden;background:linear-gradient(to bottom,#0c1c38 0%,#091226 100%);
-  border:1px solid var(--line);border-top:none;border-bottom:none
+
+.controls {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
 }
-canvas{display:block;width:100%;height:100%;touch-action:none}
-.overlay{
-  position:absolute;inset:0;z-index:30;display:flex;justify-content:center;align-items:center;
-  padding:18px;background:rgba(2,7,15,.78);backdrop-filter:blur(8px)
-}
-.overlay.hidden{display:none}
-.panel{
-  width:100%;max-height:calc(100dvh - 36px);overflow:auto;-webkit-overflow-scrolling:touch;
-  background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px;
-  box-shadow:0 18px 50px rgba(0,0,0,.35)
-}
-.badge{
-  display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(110,198,255,.16);
-  color:var(--accent);font-size:12px;margin-bottom:10px
-}
-h1,h2{margin:0 0 8px}
-.sub,.resultText{margin:0;color:var(--muted)}
-.start-top{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:center}
-.mascot-stage{
-  min-height:160px;display:flex;justify-content:center;align-items:center;
-  background:radial-gradient(circle at center,rgba(110,198,255,.12),transparent 65%);
-}
-.start-mascot{
-  width:100%;max-width:180px;image-rendering:pixelated;
-  filter:drop-shadow(0 10px 18px rgba(0,0,0,.28));
-  animation:mascotBob 2.6s ease-in-out infinite, mascotPulse 1.6s ease-in-out infinite
-}
-@keyframes mascotBob{
-  0%,100%{transform:translateY(0) rotate(0deg) scale(1)}
-  25%{transform:translateY(-4px) rotate(-1deg) scale(1.01)}
-  50%{transform:translateY(-10px) rotate(0deg) scale(1.03)}
-  75%{transform:translateY(-4px) rotate(1deg) scale(1.01)}
-}
-@keyframes mascotPulse{
-  0%,100%{filter:drop-shadow(0 10px 18px rgba(0,0,0,.28))}
-  50%{filter:drop-shadow(0 14px 24px rgba(110,198,255,.22))}
-}
-.form{display:grid;gap:12px;margin-top:14px}
-label span{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-input{
-  width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);
-  background:rgba(255,255,255,.06);color:var(--text);font-size:16px;outline:none
-}
-input:focus{border-color:var(--accent)}
-.buttonRow{display:flex;gap:10px;margin-top:10px}
-button{appearance:none;border:none;border-radius:14px;padding:14px 18px;font-size:16px;font-weight:700;cursor:pointer;width:100%}
-button.primary{color:#fff;background:linear-gradient(180deg,var(--navy2),var(--navy))}
-.guide,.lesson{
-  margin-top:14px;padding:12px;border-radius:14px;background:rgba(255,255,255,.04);
-  border:1px solid var(--line);display:grid;gap:6px;font-size:13px
-}
-.guide p,.lesson p{margin:0;color:var(--muted)}
-.stage-guide-grid{display:grid;grid-template-columns:170px 1fr;gap:14px;align-items:center}
-.stage-preview-wrap{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:10px;display:flex;justify-content:center}
-#stagePreview{width:140px;height:140px;image-rendering:pixelated}
-.stage-text{display:grid;gap:10px}
-@media (max-width:480px){
-  #app{width:100vw}
-  .hud,.subHud,.footer,#gameWrap{border-left:0;border-right:0;border-radius:0;margin:0}
-  .start-top{grid-template-columns:1fr}
-  .start-mascot{justify-self:center;max-width:150px}
-  .stage-guide-grid{grid-template-columns:1fr}
+
+button {
+  padding:12px;
+  font-size:14px;
 }
