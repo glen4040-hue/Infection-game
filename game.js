@@ -17,14 +17,12 @@
   const itemButtons = Array.from(document.querySelectorAll(".itemBtn"));
 
   const W = 420;
-  const H = 760;
-
-  // 고해상도 모바일 화면에서 흐릿해 보이지 않도록 캔버스 내부 해상도 보정
+  const H = 620;
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = Math.round(W * DPR);
   canvas.height = Math.round(H * DPR);
   canvas.style.width = "100%";
-  canvas.style.height = "100%";
+  canvas.style.height = "auto";
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.imageSmoothingEnabled = false;
 
@@ -118,14 +116,8 @@
     playerName: "",
     department: "",
     doorX: W / 2,
-    doorY: 160
+    doorY: 122
   };
-
-
-  function refreshCanvasScale() {
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    ctx.imageSmoothingEnabled = false;
-  }
 
   function safeText(text) {
     return String(text)
@@ -171,7 +163,7 @@
   function spawnPatient() {
     state.patient = choosePatient();
     state.patientX = state.doorX;
-    state.patientY = state.doorY - 40;
+    state.patientY = state.doorY - 18;
   }
 
   function startGame() {
@@ -187,7 +179,13 @@
     state.department = deptInput.value.trim();
 
     itemButtons.forEach((b) => b.classList.remove("selected"));
-    updateHud();
+    function refreshCanvasScale() {
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+  }
+
+  window.addEventListener("resize", refreshCanvasScale);
+  updateHud();
     spawnPatient();
 
     startScreen.classList.add("hidden");
@@ -244,7 +242,7 @@
     state.feedbackTimer = Math.max(0, state.feedbackTimer - dt);
     clearFeedbackEffectIfExpired();
 
-    if (state.patientY > H - 235) {
+    if (state.patientY > H - 190) {
       judge();
     }
   }
@@ -270,41 +268,23 @@
     return true;
   }
 
-
-  function drawImageFitWidth(img, x, y, w, h) {
-    if (!img.complete || !img.naturalWidth) return false;
-
-    // 좌우가 절대 잘리지 않도록 가로폭 기준으로 맞춤
-    const scale = w / img.width;
-    const dw = w;
-    const dh = img.height * scale;
-    const dx = x;
-    const dy = y;
-
-    // 이미지가 세로로 부족할 때 하단은 병동 바닥색에 가까운 색으로 채움
-    ctx.fillStyle = "#8edceb";
-    ctx.fillRect(x, y, w, h);
-
-    ctx.drawImage(img, dx, dy, dw, dh);
-    return true;
-  }
-
   function drawWardBackground() {
-    // 1초 간격으로 두 배경을 교체
+    // 모바일 전용 420x620 화면에 맞춰 배경을 비율 유지로 표시
+    // 두 배경은 1초 간격으로 번갈아 표시
     const frameIndex = Math.floor(Date.now() / 1000) % 2;
     const img = frameIndex === 0 ? images.bg : images.bg2;
 
-    const drawn = drawImageFitWidth(img, 0, 0, W, H);
+    const drawn = drawImageCover(img, 0, 0, W, H);
     if (!drawn) {
       ctx.fillStyle = "#87dbe8";
       ctx.fillRect(0, 0, W, H);
     }
 
-    // 문 위치 기준: 배경을 가로폭 기준으로 표시하므로 중앙 문 위치를 화면 중앙으로 고정
+    // 모바일 화면 기준 문 위치
     state.doorX = W / 2;
-    state.doorY = 160;
+    state.doorY = 122;
 
-    ctx.fillStyle = "rgba(255,255,255,0.03)";
+    ctx.fillStyle = "rgba(255,255,255,0.02)";
     ctx.fillRect(0, 0, W, H);
   }
 
@@ -341,7 +321,7 @@
     ctx.textAlign = "center";
     ctx.fillText(state.patient.label, 0, -25);
 
-    drawImageContain(img, -55, -15, 110, 120);
+    drawImageContain(img, -48, -12, 96, 104);
     ctx.restore();
   }
 
@@ -350,20 +330,20 @@
     const cleanImg = images[equip ? equip.clean : "cleanDefault"];
     const bubbleImg = images[equip ? equip.bubble : "bubbleDefault"];
 
-    // 클린이/버블이를 더 가깝게 배치
-    const baseY = H - 190;
-    const float = Math.sin(Date.now() / 260) * 3;
+    // 모바일 전용 비율: 하단 중앙에 compact하게 배치
+    const baseY = H - 140;
+    const float = Math.sin(Date.now() / 260) * 2.5;
 
-    drawImageContain(cleanImg, W / 2 - 104, baseY + float, 104, 126);
-    drawImageContain(bubbleImg, W / 2 + 2, baseY - 2 - float, 98, 122);
+    drawImageContain(cleanImg, W / 2 - 100, baseY + float, 92, 108);
+    drawImageContain(bubbleImg, W / 2 + 0, baseY - 2 - float, 90, 108);
 
     if (state.selected) {
       const icon = images[state.selected];
       ctx.fillStyle = "rgba(255,227,110,.25)";
       ctx.beginPath();
-      ctx.arc(W / 2, H - 210, 26, 0, Math.PI * 2);
+      ctx.arc(W / 2, H - 152, 23, 0, Math.PI * 2);
       ctx.fill();
-      drawImageContain(icon, W / 2 - 21, H - 232, 42, 42);
+      drawImageContain(icon, W / 2 - 19, H - 172, 38, 38);
     }
   }
 
@@ -374,13 +354,13 @@
     drawCharacters();
 
     ctx.fillStyle = "rgba(8,20,42,.70)";
-    roundRect(12, 12, 210, 46, 10);
+    roundRect(12, 10, 205, 42, 10);
     ctx.fill();
 
     ctx.fillStyle = "#eff7ff";
     ctx.font = "bold 15px sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("감염 예방 장비를 선택하세요", 22, 40);
+    ctx.fillText("감염 예방 장비를 선택하세요", 22, 36);
   }
 
   function loop(ts) {
@@ -389,9 +369,7 @@
     state.lastTime = ts;
     update(dt);
     render();
-    window.addEventListener("resize", refreshCanvasScale);
-  refreshCanvasScale();
-  requestAnimationFrame(loop);
+    requestAnimationFrame(loop);
   }
 
   startForm.addEventListener("submit", (e) => {
