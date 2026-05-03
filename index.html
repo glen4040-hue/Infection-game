@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-  <title>사랑의병원 감염관리 게임</title>
+  <title>감염관리 PPE 선택 게임</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -11,9 +11,15 @@
   <section id="startScreen" class="overlay">
     <div class="panel">
       <div class="badge">SRGH Infection Control</div>
-      <h1>사랑의병원 감염관리 게임</h1>
-      <p class="sub">감염 환자에게 적절한 감염 예방 장비를 선택하세요.</p>
-      <img class="startMascot" src="./assets/mascot_clean_bubble.png" alt="클린이와 버블이" />
+      <h1>사랑의 병원 감염 퀴즈 게임</h1>
+      <p class="sub">내려오는 감염 환자에게 적절한 예방 도구를 선택하세요!</p>
+      <div class="startScene" aria-label="사랑의병원 시작 화면">
+        <img class="startHospital" src="./assets/start_hospital.png" alt="사랑의병원" />
+        <img class="startClean cleanA" src="./assets/start_clean.png" alt="클린이" />
+        <img class="startClean cleanB" src="./assets/start_clean_wink.png" alt="클린이 윙크" />
+        <img class="startBubble bubbleA" src="./assets/start_bubble.png" alt="버블이" />
+        <img class="startBubble bubbleB" src="./assets/start_bubble_jump.png" alt="버블이 점프" />
+      </div>
       <form id="startForm" class="form">
         <label>부서명 <input id="deptInput" placeholder="예: 감염관리실" maxlength="20" /></label>
         <label>이름 <input id="nameInput" placeholder="예: 홍길동" maxlength="20" /></label>

@@ -110,7 +110,7 @@
     patient: null,
     patientY: -120,
     patientX: W / 2,
-    patientSpeed: 100,
+    patientSpeed: 150,
     lastTime: 0,
     feedbackTimer: 0,
     playerName: "",
@@ -174,7 +174,7 @@
     state.combo = 0;
     state.selected = null;
     state.lastTime = 0;
-    state.patientSpeed = 100;
+    state.patientSpeed = 150;
     state.playerName = nameInput.value.trim();
     state.department = deptInput.value.trim();
 
