@@ -33,3 +33,12 @@
 - 환자 내려오는 게임 화면: bgm_battle.mp3
 - 모바일 자동재생 제한 때문에 첫 터치/클릭 후 음악 재생
 - 우측 상단 🔊/🔇 버튼으로 음소거 가능
+
+
+## Firebase TOP100 랭킹 추가
+- 게임 종료 시 scores 컬렉션에 점수 저장
+- 저장 필드: department, name, score, createdAt, playTime, userAgent
+- TOP 100 랭킹 표시
+- 100위 밖 점수도 서버에 저장
+- 랭킹 새로고침 버튼 추가
+- 개인정보 안내문 추가

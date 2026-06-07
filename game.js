@@ -15,6 +15,9 @@
   const feedback = document.getElementById("feedback");
   const finalText = document.getElementById("finalText");
   const itemButtons = Array.from(document.querySelectorAll(".itemBtn"));
+  const rankingList = document.getElementById("rankingList");
+  const rankingStatus = document.getElementById("rankingStatus");
+  const rankingRefreshBtn = document.getElementById("rankingRefreshBtn");
   const bgmCenter = document.getElementById("bgmCenter");
   const bgmBattle = document.getElementById("bgmBattle");
   const soundToggle = document.getElementById("soundToggle");
@@ -144,7 +147,7 @@
     patient: null,
     patientY: -120,
     patientX: W / 2,
-    patientSpeed: 100,
+    patientSpeed: 70,
     lastTime: 0,
     feedbackTimer: 0,
     playerName: "",
@@ -154,6 +157,9 @@
     bubbleMessage: "감염관리실 화이팅!",
     bubbleMessageTimer: 0,
     damageFlash: 0,
+    gameStartTime: 0,
+    lastScoreId: null,
+    scoreSaved: false,
     audioUnlocked: false,
     muted: false
   };
@@ -349,9 +355,12 @@
     state.combo = 0;
     state.selected = [];
     state.lastTime = 0;
-    state.patientSpeed = 100;
-    state.playerName = deptInput.value.trim();
-    state.department = nameInput.value.trim();
+    state.patientSpeed = 70;
+    state.gameStartTime = Date.now();
+    state.lastScoreId = null;
+    state.scoreSaved = false;
+    state.department = deptInput.value.trim();
+    state.playerName = nameInput.value.trim();
     state.bubbleMessage = randomBubbleMessage();
     state.bubbleMessageTimer = 1.2;
 
@@ -366,6 +375,102 @@
     render();
   }
 
+
+  function escapeHtml(text) {
+    return String(text)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function setRankingStatus(text) {
+    if (rankingStatus) rankingStatus.textContent = text;
+  }
+
+  function renderRanking(rows = [], myId = state.lastScoreId) {
+    if (!rankingList) return;
+
+    if (!rows.length) {
+      rankingList.innerHTML = '<li class="rankingEmpty">아직 등록된 점수가 없습니다.</li>';
+      return;
+    }
+
+    rankingList.innerHTML = rows.map((row, index) => {
+      const rank = index + 1;
+      const department = escapeHtml(row.department || "부서 미입력");
+      const name = escapeHtml(row.name || "익명");
+      const score = Number(row.score || 0);
+      const isMe = myId && row.id === myId;
+
+      return `
+        <li class="rankingItem ${isMe ? "me" : ""}">
+          <span class="rank">${rank}위</span>
+          <span class="who">${department} / ${name}</span>
+          <span class="score">${score}점</span>
+        </li>
+      `;
+    }).join("");
+  }
+
+  async function refreshRanking() {
+    if (!window.loadTopRanking) {
+      setRankingStatus("랭킹 기능을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+
+    try {
+      setRankingStatus("랭킹을 불러오는 중...");
+      const rows = await window.loadTopRanking();
+      renderRanking(rows);
+      setRankingStatus(`TOP ${Math.min(100, rows.length)} 랭킹입니다. 100위 밖 점수도 서버에는 저장됩니다.`);
+    } catch (error) {
+      console.error(error);
+      setRankingStatus("랭킹을 불러오지 못했습니다. 네트워크 또는 Firebase 규칙을 확인해주세요.");
+    }
+  }
+
+  async function submitScoreAndRefreshRanking() {
+    const playTime = state.gameStartTime ? Math.round((Date.now() - state.gameStartTime) / 1000) : 0;
+
+    if (!window.saveGameScore) {
+      setRankingStatus("Firebase 연결 준비 중입니다. 점수 저장에 실패하면 새로고침 후 다시 시도해주세요.");
+      await refreshRanking();
+      return;
+    }
+
+    if (state.scoreSaved) {
+      await refreshRanking();
+      return;
+    }
+
+    try {
+      setRankingStatus("점수를 저장하는 중...");
+      const ref = await window.saveGameScore({
+        department: state.department || "부서 미입력",
+        name: state.playerName || "익명",
+        score: state.score,
+        playTime
+      });
+
+      state.lastScoreId = ref.id;
+      state.scoreSaved = true;
+
+      setRankingStatus("점수 저장 완료! 랭킹을 불러오는 중...");
+      const rows = await window.loadTopRanking();
+      renderRanking(rows, state.lastScoreId);
+
+      const inTop100 = rows.some((row) => row.id === state.lastScoreId);
+      setRankingStatus(inTop100 ? "내 기록이 TOP 100에 표시되었습니다." : "점수는 저장되었습니다. 현재 기록은 TOP 100 밖입니다.");
+    } catch (error) {
+      console.error(error);
+      setRankingStatus("점수 저장 또는 랭킹 불러오기에 실패했습니다. Firebase 설정을 확인해주세요.");
+      await refreshRanking();
+    }
+  }
+
+
   function endGame() {
     state.running = false;
     state.paused = true;
@@ -373,6 +478,7 @@
     finalText.textContent = `${state.department || "부서 미입력"} ${state.playerName || "익명"}님의 최종 점수는 ${state.score}점입니다.`;
     gameOverScreen.classList.remove("hidden");
     playCenterBgm();
+    submitScoreAndRefreshRanking();
   }
 
   function selectItem(item) {
@@ -725,6 +831,10 @@
   function refreshCanvasScale() {
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.imageSmoothingEnabled = false;
+  }
+
+  if (rankingRefreshBtn) {
+    rankingRefreshBtn.addEventListener("click", refreshRanking);
   }
 
   startForm.addEventListener("submit", (e) => {

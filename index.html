@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <title>감염관리 PPE 선택 게임</title>
-  <link rel="stylesheet" href="./style.css?v=bgm-v9" />
+  <link rel="stylesheet" href="./style.css?v=firebase-ranking-v11" />
 </head>
 <body>
 <main id="app">
@@ -25,6 +25,7 @@
       <form id="startForm" class="form">
         <label>부서명 <input id="deptInput" placeholder="예: 감염관리실" maxlength="20" /></label>
         <label>이름 <input id="nameInput" placeholder="예: 홍길동" maxlength="20" /></label>
+        <p class="privacyNote">입력한 부서명과 이름은 점수 집계 및 순위 확인 목적으로만 사용됩니다.</p>
         <button class="primary" type="submit">게임 시작</button>
       </form>
       <div class="guide">
@@ -39,6 +40,16 @@
     <div class="panel">
       <h2>게임 종료</h2>
       <p id="finalText" class="sub"></p>
+
+        <div class="rankingBox">
+          <div class="rankingHeader">
+            <h3>🏆 TOP 100 랭킹</h3>
+            <button id="rankingRefreshBtn" type="button" class="rankingRefresh">새로고침</button>
+          </div>
+          <p id="rankingStatus" class="rankingStatus">게임 종료 후 점수가 저장되고 랭킹이 표시됩니다.</p>
+          <ol id="rankingList" class="rankingList"></ol>
+        </div>
+
       <button id="restartBtn" class="primary" type="button">다시 시작</button>
     </div>
   </section>
@@ -70,6 +81,64 @@
   <audio id="bgmBattle" src="./assets/bgm_battle.mp3" loop preload="auto"></audio>
   <button id="soundToggle" class="soundToggle" type="button" aria-label="음악 켜기/끄기">🔊</button>
 
-  <script src="./game.js?v=bgm-v9"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      query,
+      orderBy,
+      limit,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOCv9oYCBWNtyTpgVxTdMA41A91R2M7NU",
+      authDomain: "infection-game-vercel.firebaseapp.com",
+      projectId: "infection-game-vercel",
+      storageBucket: "infection-game-vercel.firebasestorage.app",
+      messagingSenderId: "461853420109",
+      appId: "1:461853420109:web:71e66d6978941353194a04"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.firebaseRankingReady = true;
+
+    window.saveGameScore = async function saveGameScore(scoreData) {
+      const payload = {
+        department: String(scoreData.department || "부서 미입력").slice(0, 30),
+        name: String(scoreData.name || "익명").slice(0, 30),
+        score: Number(scoreData.score || 0),
+        playTime: Number(scoreData.playTime || 0),
+        userAgent: navigator.userAgent.slice(0, 180),
+        createdAt: serverTimestamp()
+      };
+
+      return await addDoc(collection(db, "scores"), payload);
+    };
+
+    window.loadTopRanking = async function loadTopRanking() {
+      const q = query(
+        collection(db, "scores"),
+        orderBy("score", "desc"),
+        limit(100)
+      );
+
+      const snapshot = await getDocs(q);
+      const rows = [];
+      snapshot.forEach((doc) => {
+        rows.push({ id: doc.id, ...doc.data() });
+      });
+      return rows;
+    };
+  </script>
+
+
+  <script src="./game.js?v=firebase-ranking-v11"></script>
 </body>
 </html>
