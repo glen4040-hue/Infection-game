@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <title>감염관리 PPE 선택 게임</title>
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./style.css?v=bgm-v9" />
 </head>
 <body>
 <main id="app">
@@ -17,8 +17,10 @@
         <img class="startHospital" src="./assets/start_hospital.png" alt="사랑의병원" />
         <img class="startClean cleanA" src="./assets/start_clean.png" alt="클린이" />
         <img class="startClean cleanB" src="./assets/start_clean_wink.png" alt="클린이 윙크" />
+        <div class="startSpeech cleanSpeech" id="startCleanSpeech">난 클린이!</div>
         <img class="startBubble bubbleA" src="./assets/start_bubble.png" alt="버블이" />
         <img class="startBubble bubbleB" src="./assets/start_bubble_jump.png" alt="버블이 점프" />
+        <div class="startSpeech bubbleSpeech" id="startBubbleSpeech">난 버블이!</div>
       </div>
       <form id="startForm" class="form">
         <label>부서명 <input id="deptInput" placeholder="예: 감염관리실" maxlength="20" /></label>
@@ -41,7 +43,7 @@
     </div>
   </section>
 
-  <header class="hud"><div>점수 <strong id="scoreText">0</strong></div><div>체력 <strong id="hpText">1</strong></div></header>
+  <header class="hud"><div>점수 <strong id="scoreText">0</strong></div><div>체력 <strong id="hpText" class="heartHud">❤️❤️❤️</strong></div></header>
 
   <div id="gameWrap">
     <canvas id="gameCanvas" width="420" height="760"></canvas>
@@ -60,10 +62,14 @@
       <span>가운&장갑</span><img src="./assets/icon_gown.png" alt="가운과 장갑" />
     </button>
     <button class="itemBtn" data-item="syringe" type="button">
-      <span>안전바늘</span><img src="./assets/icon_syringe.png" alt="안전바늘" />
+      <span>안전바늘&장갑</span><img src="./assets/icon_syringe_glove.png" alt="안전바늘과 장갑" />
     </button>
   </nav>
 </main>
-<script src="./game.js"></script>
+<audio id="bgmCenter" src="./assets/bgm_center.mp3" loop preload="auto"></audio>
+  <audio id="bgmBattle" src="./assets/bgm_battle.mp3" loop preload="auto"></audio>
+  <button id="soundToggle" class="soundToggle" type="button" aria-label="음악 켜기/끄기">🔊</button>
+
+  <script src="./game.js?v=bgm-v9"></script>
 </body>
 </html>
