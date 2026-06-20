@@ -16,6 +16,7 @@
   const restartBtn = document.getElementById("restartBtn");
   const deptInput = document.getElementById("deptInput");
   const nameInput = document.getElementById("nameInput");
+  const startWarning = document.getElementById("startWarning");
 
   const stageText = document.getElementById("stageText");
   const scoreText = document.getElementById("scoreText");
@@ -54,7 +55,7 @@
       detail: [
         "감염병 환자가 위에서 내려오면 환자 감염병명을 확인하세요.",
         "하단 4개의 감염 예방 도구 중 알맞은 도구를 선택하세요.",
-        "일부 감염병은 보호구가 2개 필요합니다. 클린이 말풍선의 안내를 확인하세요.",
+        "일부 감염병은 보호구가 2개 필요합니다. 예방이 말풍선의 안내를 확인하세요.",
         "총 3개의 스테이지로 진행되며 스테이지가 올라갈수록 환자가 더 빨리 내려옵니다."
       ]
     },
@@ -155,13 +156,13 @@
     "사랑의 병원 화이팅!",
     "정확히 고르면 점수 UP!",
     "표준주의는 기본!",
-    "클린이 힘내!",
+    "예방이 힘내!",
     "사랑의 병원 화이팅!"
   ];
 
 
   const START_CLEAN_MESSAGES = [
-    "난 클린이!",
+    "난 예방이!",
     "같이 병원을 지키자!",
     "예방 도구를 골라줘!",
     "오늘도 안전하게!",
@@ -169,7 +170,7 @@
   ];
 
   const START_BUBBLE_MESSAGES = [
-    "난 버블이!",
+    "난 지킴이!",
     "손소독 필수~",
     "보호구 착용 좋아!",
     "감염관리실 화이팅!",
@@ -389,7 +390,44 @@
     setFeedback("환자에게 맞는 장비를 선택하세요.");
   }
 
+  
+  function clearStartValidation() {
+    if (startWarning) startWarning.textContent = "";
+    if (deptInput) deptInput.classList.remove("inputError");
+    if (nameInput) nameInput.classList.remove("inputError");
+  }
+
+  function validateStartForm() {
+    const department = deptInput.value.trim();
+    const playerName = nameInput.value.trim();
+
+    clearStartValidation();
+
+    if (!department && !playerName) {
+      if (startWarning) startWarning.textContent = "부서명과 이름을 모두 입력해주세요.";
+      deptInput.classList.add("inputError");
+      nameInput.classList.add("inputError");
+      deptInput.focus();
+      return false;
+    }
+    if (!department) {
+      if (startWarning) startWarning.textContent = "부서명을 입력해주세요.";
+      deptInput.classList.add("inputError");
+      deptInput.focus();
+      return false;
+    }
+    if (!playerName) {
+      if (startWarning) startWarning.textContent = "이름을 입력해주세요.";
+      nameInput.classList.add("inputError");
+      nameInput.focus();
+      return false;
+    }
+    return true;
+  }
+
   function startGame() {
+    if (!validateStartForm()) return;
+    clearStartValidation();
     state.running = true;
     state.paused = false;
     state.score = 0;
@@ -642,7 +680,7 @@
       updateHud();
       triggerDamageEffect();
 
-      // 버블이가 정답을 말풍선으로 알려줌
+      // 지킴이가 정답을 말풍선으로 알려줌
       state.bubbleMessage = "앗 틀렸어!\\n정답: " + answerLabelText(missedPatient);
       state.bubbleMessageTimer = 3.8;
 
@@ -955,6 +993,12 @@
   if (stageContinueBtn) {
     stageContinueBtn.addEventListener("click", hideStageOverlayAndResume);
   }
+
+  
+  [deptInput, nameInput].forEach((input) => {
+    if (!input) return;
+    input.addEventListener("input", clearStartValidation);
+  });
 
   startForm.addEventListener("submit", (e) => {
     e.preventDefault();

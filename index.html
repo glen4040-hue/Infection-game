@@ -3,29 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-  <title>감염관리 PPE 선택 게임</title>
-  <link rel="stylesheet" href="./style.css?v=guide-feedback-v14" />
+  <title>감염병으로부터 사랑의 병원을 지켜라!</title>
+  <link rel="stylesheet" href="./style.css?v=title-names-v16" />
 </head>
 <body>
 <main id="app">
   <section id="startScreen" class="overlay">
     <div class="panel">
       <div class="badge">SRGH Infection Control</div>
-      <h1>사랑의 병원 감염 퀴즈 게임</h1>
+      <h1>감염병으로부터<br />사랑의 병원을 지켜라!</h1>
       <p class="sub">내려오는 감염 환자에게 적절한 예방 도구를 선택하세요!</p>
       <div class="startScene" aria-label="사랑의병원 시작 화면">
         <img class="startHospital" src="./assets/start_hospital.png" alt="사랑의병원" />
-        <img class="startClean cleanA" src="./assets/start_clean.png" alt="클린이" />
-        <img class="startClean cleanB" src="./assets/start_clean_wink.png" alt="클린이 윙크" />
-        <div class="startSpeech cleanSpeech" id="startCleanSpeech">난 클린이!</div>
-        <img class="startBubble bubbleA" src="./assets/start_bubble.png" alt="버블이" />
-        <img class="startBubble bubbleB" src="./assets/start_bubble_jump.png" alt="버블이 점프" />
-        <div class="startSpeech bubbleSpeech" id="startBubbleSpeech">난 버블이!</div>
+        <img class="startClean cleanA" src="./assets/start_clean.png" alt="예방이" />
+        <img class="startClean cleanB" src="./assets/start_clean_wink.png" alt="예방이 윙크" />
+        <div class="startSpeech cleanSpeech" id="startCleanSpeech">난 예방이!</div>
+        <img class="startBubble bubbleA" src="./assets/start_bubble.png" alt="지킴이" />
+        <img class="startBubble bubbleB" src="./assets/start_bubble_jump.png" alt="지킴이 점프" />
+        <div class="startSpeech bubbleSpeech" id="startBubbleSpeech">난 지킴이!</div>
       </div>
       <form id="startForm" class="form">
         <label>부서명 <input id="deptInput" placeholder="예: 감염관리실" maxlength="20" /></label>
         <label>이름 <input id="nameInput" placeholder="예: 홍길동" maxlength="20" /></label>
         <p class="privacyNote">입력한 부서명과 이름은 점수 집계 및 순위 확인 목적으로만 사용됩니다.</p>
+        <p id="startWarning" class="startWarning" role="alert" aria-live="polite"></p>
         <button class="primary" type="submit">게임 시작</button>
       </form>
       <div class="guide">
@@ -154,6 +155,6 @@
   </script>
 
 
-  <script src="./game.js?v=guide-feedback-v14"></script>
+  <script src="./game.js?v=title-names-v16"></script>
 </body>
 </html>
