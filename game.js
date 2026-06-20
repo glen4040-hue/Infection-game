@@ -5,11 +5,18 @@
 
   const startScreen = document.getElementById("startScreen");
   const gameOverScreen = document.getElementById("gameOverScreen");
+  const stageOverlay = document.getElementById("stageOverlay");
+  const stageBadge = document.getElementById("stageBadge");
+  const stageTitle = document.getElementById("stageTitle");
+  const stageMessage = document.getElementById("stageMessage");
+  const stageSpeedLabel = document.getElementById("stageSpeedLabel");
+  const stageContinueBtn = document.getElementById("stageContinueBtn");
   const startForm = document.getElementById("startForm");
   const restartBtn = document.getElementById("restartBtn");
   const deptInput = document.getElementById("deptInput");
   const nameInput = document.getElementById("nameInput");
 
+  const stageText = document.getElementById("stageText");
   const scoreText = document.getElementById("scoreText");
   const hpText = document.getElementById("hpText");
   const feedback = document.getElementById("feedback");
@@ -34,6 +41,13 @@
   canvas.style.height = "auto";
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.imageSmoothingEnabled = false;
+
+  
+  const STAGES = [
+    { level: 1, minScore: 0, speed: 70, title: "Stage 1", message: "기본 속도입니다. 환자에게 맞는 보호구를 침착하게 선택하세요!" },
+    { level: 2, minScore: 50, speed: 100, title: "Stage 2", message: "환자가 더 빨리 내려옵니다. 보호구를 더 빠르게 착용하세요!" },
+    { level: 3, minScore: 120, speed: 135, title: "Stage 3", message: "최종 스테이지입니다! 판단 시간이 짧아집니다. 빠르고 정확하게 선택하세요!" }
+  ];
 
   const imagePaths = {
     bg: "./assets/bg_ward.png",
@@ -148,6 +162,8 @@
     patientY: -120,
     patientX: W / 2,
     patientSpeed: 70,
+    currentStage: 1,
+    nextStagePending: null,
     lastTime: 0,
     feedbackTimer: 0,
     playerName: "",
@@ -258,6 +274,7 @@
   }
 
   function updateHud() {
+    if (stageText) stageText.textContent = String(state.currentStage || 1);
     scoreText.textContent = String(state.score);
     hpText.textContent = "❤️".repeat(Math.max(0, state.hp));
     hpText.classList.add("heartHud");
@@ -355,7 +372,8 @@
     state.combo = 0;
     state.selected = [];
     state.lastTime = 0;
-    state.patientSpeed = 70;
+    applyStage(getStageByLevel(1));
+    state.nextStagePending = null;
     state.gameStartTime = Date.now();
     state.lastScoreId = null;
     state.scoreSaved = false;
@@ -370,11 +388,66 @@
 
     startScreen.classList.add("hidden");
     gameOverScreen.classList.add("hidden");
+    if (stageOverlay) stageOverlay.classList.add("hidden");
     lockScroll(true);
     playBattleBgm();
     render();
   }
 
+
+  
+  function getStageByLevel(level) {
+    return STAGES.find((stage) => stage.level === level) || STAGES[0];
+  }
+
+  function getStageForScore(score) {
+    let current = STAGES[0];
+    for (const stage of STAGES) {
+      if (score >= stage.minScore) current = stage;
+    }
+    return current;
+  }
+
+  function applyStage(stage) {
+    state.currentStage = stage.level;
+    state.patientSpeed = stage.speed;
+    updateHud();
+  }
+
+  function showStageOverlay(stage) {
+    state.paused = true;
+    state.nextStagePending = stage;
+    if (stageBadge) stageBadge.textContent = `Stage ${stage.level}`;
+    if (stageTitle) {
+      stageTitle.textContent = `${stage.title} 시작!`;
+      stageTitle.classList.add("stageOverlayFlash");
+    }
+    if (stageMessage) stageMessage.textContent = stage.message;
+    if (stageSpeedLabel) stageSpeedLabel.textContent = `환자 속도 ${stage.speed}`;
+    if (stageOverlay) stageOverlay.classList.remove("hidden");
+    setFeedback(stage.message);
+  }
+
+  function hideStageOverlayAndResume() {
+    const stage = state.nextStagePending;
+    if (!stage) return;
+    applyStage(stage);
+    state.nextStagePending = null;
+    state.paused = false;
+    if (stageTitle) stageTitle.classList.remove("stageOverlayFlash");
+    if (stageOverlay) stageOverlay.classList.add("hidden");
+    spawnPatient();
+    setFeedback(`Stage ${stage.level}: ${stage.message}`);
+  }
+
+  function checkStageProgress() {
+    const nextStage = getStageForScore(state.score);
+    if (nextStage.level > state.currentStage) {
+      showStageOverlay(nextStage);
+      return true;
+    }
+    return false;
+  }
 
   function escapeHtml(text) {
     return String(text)
@@ -519,6 +592,7 @@
       }
 
       updateHud();
+      if (checkStageProgress()) return;
       spawnPatient();
     } else {
       const missedPatient = state.patient;
@@ -835,6 +909,10 @@
 
   if (rankingRefreshBtn) {
     rankingRefreshBtn.addEventListener("click", refreshRanking);
+  }
+
+  if (stageContinueBtn) {
+    stageContinueBtn.addEventListener("click", hideStageOverlayAndResume);
   }
 
   startForm.addEventListener("submit", (e) => {

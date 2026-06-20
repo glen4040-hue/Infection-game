@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <title>감염관리 PPE 선택 게임</title>
-  <link rel="stylesheet" href="./style.css?v=firebase-ranking-v11" />
+  <link rel="stylesheet" href="./style.css?v=stage-speed-v12" />
 </head>
 <body>
 <main id="app">
@@ -36,6 +36,20 @@
     </div>
   </section>
 
+
+  <section id="stageOverlay" class="overlay hidden">
+    <div class="panel stagePanel">
+      <div class="badge" id="stageBadge">Stage 2</div>
+      <h2 id="stageTitle">속도가 빨라집니다!</h2>
+      <p id="stageMessage" class="sub">환자가 더 빨리 내려옵니다. 보호구를 더 빠르게 착용하세요!</p>
+      <div class="stageSpeedBox">
+        <span id="stageSpeedLabel">속도 100</span>
+      </div>
+      <button id="stageContinueBtn" class="primary" type="button">준비됐어요!</button>
+    </div>
+  </section>
+
+
   <section id="gameOverScreen" class="overlay hidden">
     <div class="panel">
       <h2>게임 종료</h2>
@@ -54,7 +68,7 @@
     </div>
   </section>
 
-  <header class="hud"><div>점수 <strong id="scoreText">0</strong></div><div>체력 <strong id="hpText" class="heartHud">❤️❤️❤️</strong></div></header>
+  <header class="hud"><div>스테이지 <strong id="stageText">1</strong></div><div>점수 <strong id="scoreText">0</strong></div><div>체력 <strong id="hpText" class="heartHud">❤️❤️❤️</strong></div></header>
 
   <div id="gameWrap">
     <canvas id="gameCanvas" width="420" height="760"></canvas>
@@ -139,6 +153,6 @@
   </script>
 
 
-  <script src="./game.js?v=firebase-ranking-v11"></script>
+  <script src="./game.js?v=stage-speed-v12"></script>
 </body>
 </html>
