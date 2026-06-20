@@ -10,6 +10,7 @@
   const stageTitle = document.getElementById("stageTitle");
   const stageMessage = document.getElementById("stageMessage");
   const stageSpeedLabel = document.getElementById("stageSpeedLabel");
+  const stageDetailList = document.getElementById("stageDetailList");
   const stageContinueBtn = document.getElementById("stageContinueBtn");
   const startForm = document.getElementById("startForm");
   const restartBtn = document.getElementById("restartBtn");
@@ -44,9 +45,33 @@
 
   
   const STAGES = [
-    { level: 1, minScore: 0, speed: 70, title: "Stage 1", message: "기본 속도입니다. 환자에게 맞는 보호구를 침착하게 선택하세요!" },
-    { level: 2, minScore: 50, speed: 100, title: "Stage 2", message: "환자가 더 빨리 내려옵니다. 보호구를 더 빠르게 착용하세요!" },
-    { level: 3, minScore: 120, speed: 135, title: "Stage 3", message: "최종 스테이지입니다! 판단 시간이 짧아집니다. 빠르고 정확하게 선택하세요!" }
+    {
+      level: 1,
+      minScore: 0,
+      speed: 70,
+      title: "Stage 1",
+      message: "게임 방법을 확인하고 시작하세요!",
+      detail: [
+        "감염병 환자가 위에서 내려오면 환자 감염병명을 확인하세요.",
+        "하단 4개의 감염 예방 도구 중 알맞은 도구를 선택하세요.",
+        "일부 감염병은 보호구가 2개 필요합니다. 클린이 말풍선의 안내를 확인하세요.",
+        "총 3개의 스테이지로 진행되며 스테이지가 올라갈수록 환자가 더 빨리 내려옵니다."
+      ]
+    },
+    {
+      level: 2,
+      minScore: 50,
+      speed: 100,
+      title: "Stage 2",
+      message: "환자가 더 빨리 내려옵니다. 보호구를 더 빠르게 착용하세요!"
+    },
+    {
+      level: 3,
+      minScore: 120,
+      speed: 135,
+      title: "Stage 3",
+      message: "최종 스테이지입니다! 판단 시간이 짧아집니다. 빠르고 정확하게 선택하세요!"
+    }
   ];
 
   const imagePaths = {
@@ -384,13 +409,13 @@
 
     itemButtons.forEach((b) => b.classList.remove("selected"));
     updateHud();
-    spawnPatient();
 
     startScreen.classList.add("hidden");
     gameOverScreen.classList.add("hidden");
     if (stageOverlay) stageOverlay.classList.add("hidden");
     lockScroll(true);
     playBattleBgm();
+    showStageOverlay(getStageByLevel(1));
     render();
   }
 
@@ -417,13 +442,29 @@
   function showStageOverlay(stage) {
     state.paused = true;
     state.nextStagePending = stage;
+
     if (stageBadge) stageBadge.textContent = `Stage ${stage.level}`;
     if (stageTitle) {
-      stageTitle.textContent = `${stage.title} 시작!`;
+      stageTitle.textContent = stage.level === 1 ? "게임 방법 안내" : `${stage.title} 시작!`;
       stageTitle.classList.add("stageOverlayFlash");
     }
     if (stageMessage) stageMessage.textContent = stage.message;
     if (stageSpeedLabel) stageSpeedLabel.textContent = `환자 속도 ${stage.speed}`;
+
+    if (stageDetailList) {
+      if (Array.isArray(stage.detail) && stage.detail.length) {
+        stageDetailList.innerHTML = stage.detail.map((text, index) => `
+          <div class="stageInstructionItem">
+            <span class="stageInstructionIcon">${index + 1}</span>
+            <span>${text}</span>
+          </div>
+        `).join("");
+      } else {
+        stageDetailList.innerHTML = "";
+      }
+    }
+
+    if (stageContinueBtn) stageContinueBtn.textContent = stage.level === 1 ? "게임 시작!" : "준비됐어요!";
     if (stageOverlay) stageOverlay.classList.remove("hidden");
     setFeedback(stage.message);
   }
