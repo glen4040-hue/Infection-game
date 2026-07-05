@@ -17,6 +17,12 @@
   const deptInput = document.getElementById("deptInput");
   const nameInput = document.getElementById("nameInput");
   const startWarning = document.getElementById("startWarning");
+  const startRankingBtn = document.getElementById("startRankingBtn");
+  const startRankingScreen = document.getElementById("startRankingScreen");
+  const startRankingCloseBtn = document.getElementById("startRankingCloseBtn");
+  const startRankingRefreshBtn = document.getElementById("startRankingRefreshBtn");
+  const startRankingList = document.getElementById("startRankingList");
+  const startRankingStatus = document.getElementById("startRankingStatus");
 
   const stageText = document.getElementById("stageText");
   const scoreText = document.getElementById("scoreText");
@@ -449,6 +455,7 @@
     updateHud();
 
     startScreen.classList.add("hidden");
+    if (startRankingScreen) startRankingScreen.classList.add("hidden");
     gameOverScreen.classList.add("hidden");
     if (stageOverlay) stageOverlay.classList.add("hidden");
     lockScroll(true);
@@ -537,25 +544,23 @@
       .replaceAll("'", "&#039;");
   }
 
-  function setRankingStatus(text) {
-    if (rankingStatus) rankingStatus.textContent = text;
+
+  function setStartRankingStatus(text) {
+    if (startRankingStatus) startRankingStatus.textContent = text;
   }
 
-  function renderRanking(rows = [], myId = state.lastScoreId) {
-    if (!rankingList) return;
-
+  function renderRankingInto(target, rows = [], myId = null) {
+    if (!target) return;
     if (!rows.length) {
-      rankingList.innerHTML = '<li class="rankingEmpty">아직 등록된 점수가 없습니다.</li>';
+      target.innerHTML = '<li class="rankingEmpty">아직 등록된 점수가 없습니다.</li>';
       return;
     }
-
-    rankingList.innerHTML = rows.map((row, index) => {
+    target.innerHTML = rows.map((row, index) => {
       const rank = index + 1;
       const department = escapeHtml(row.department || "부서 미입력");
       const name = escapeHtml(row.name || "익명");
       const score = Number(row.score || 0);
       const isMe = myId && row.id === myId;
-
       return `
         <li class="rankingItem ${isMe ? "me" : ""}">
           <span class="rank">${rank}위</span>
@@ -564,6 +569,40 @@
         </li>
       `;
     }).join("");
+  }
+
+  async function refreshStartRanking() {
+    if (!window.loadTopRanking) {
+      setStartRankingStatus("랭킹 기능을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+    try {
+      setStartRankingStatus("랭킹을 불러오는 중...");
+      const rows = await window.loadTopRanking();
+      renderRankingInto(startRankingList, rows);
+      setStartRankingStatus(`동일 부서명·이름은 최고 기록만 반영한 TOP ${Math.min(100, rows.length)} 순위입니다.`);
+    } catch (error) {
+      console.error(error);
+      setStartRankingStatus("랭킹을 불러오지 못했습니다. 네트워크 또는 Firebase 설정을 확인해주세요.");
+    }
+  }
+
+  async function openStartRanking() {
+    if (startRankingScreen) startRankingScreen.classList.remove("hidden");
+    await refreshStartRanking();
+  }
+
+  function closeStartRanking() {
+    if (startRankingScreen) startRankingScreen.classList.add("hidden");
+  }
+
+
+  function setRankingStatus(text) {
+    if (rankingStatus) rankingStatus.textContent = text;
+  }
+
+  function renderRanking(rows = [], myId = state.lastScoreId) {
+    renderRankingInto(rankingList, rows, myId);
   }
 
   async function refreshRanking() {
@@ -576,7 +615,7 @@
       setRankingStatus("랭킹을 불러오는 중...");
       const rows = await window.loadTopRanking();
       renderRanking(rows);
-      setRankingStatus(`TOP ${Math.min(100, rows.length)} 랭킹입니다. 100위 밖 점수도 서버에는 저장됩니다.`);
+      setRankingStatus(`동일 부서명·이름은 최고 기록만 반영합니다. TOP ${Math.min(100, rows.length)} 랭킹이며 100위 밖 기록도 서버에는 저장됩니다.`);
     } catch (error) {
       console.error(error);
       setRankingStatus("랭킹을 불러오지 못했습니다. 네트워크 또는 Firebase 규칙을 확인해주세요.");
@@ -984,6 +1023,22 @@
   function refreshCanvasScale() {
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.imageSmoothingEnabled = false;
+  }
+
+
+  if (startRankingBtn) {
+    startRankingBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openStartRanking();
+    });
+  }
+
+  if (startRankingCloseBtn) {
+    startRankingCloseBtn.addEventListener("click", closeStartRanking);
+  }
+
+  if (startRankingRefreshBtn) {
+    startRankingRefreshBtn.addEventListener("click", refreshStartRanking);
   }
 
   if (rankingRefreshBtn) {
