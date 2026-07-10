@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <title>감염병으로부터 사랑의 병원을 지켜라!</title>
-  <link rel="stylesheet" href="./style.css?v=highest-score-ranking-v19" />
+  <link rel="stylesheet" href="./style.css?v=ranking-read-disabled-v20" />
 </head>
 <body>
 <main id="app">
@@ -52,7 +52,7 @@
         </div>
         <button id="startRankingCloseBtn" class="rankingCloseBtn" type="button" aria-label="순위 닫기">✕</button>
       </div>
-      <p class="sub">현재 TOP 100 순위입니다.</p>
+      <p class="sub">현재 참여자가 많아 순위는 집계 중입니다.</p>
       <div class="rankingBox startRankingBox">
         <div class="rankingHeader">
           <h3>🏆 TOP 100 랭킹</h3>
@@ -166,40 +166,12 @@
     };
 
     window.loadTopRanking = async function loadTopRanking() {
-      const q = query(
-        collection(db, "scores"),
-        orderBy("score", "desc")
-      );
-
-      const snapshot = await getDocs(q);
-      const bestScoreByPlayer = new Map();
-
-      snapshot.forEach((doc) => {
-        const row = { id: doc.id, ...doc.data() };
-
-        const normalizedDepartment = String(row.department || "")
-          .trim()
-          .replace(/\s+/g, " ")
-          .toLowerCase();
-
-        const normalizedName = String(row.name || "")
-          .trim()
-          .replace(/\s+/g, " ")
-          .toLowerCase();
-
-        const playerKey = `${normalizedDepartment}::${normalizedName}`;
-
-        // 점수 내림차순 조회이므로 같은 부서명+이름의 첫 기록이 최고점
-        if (!bestScoreByPlayer.has(playerKey)) {
-          bestScoreByPlayer.set(playerKey, row);
-        }
-      });
-
-      return Array.from(bestScoreByPlayer.values()).slice(0, 100);
+      // Firestore 읽기 할당량 보호를 위해 랭킹 조회 일시 중지
+      return [];
     };
   </script>
 
 
-  <script src="./game.js?v=highest-score-ranking-v19"></script>
+  <script src="./game.js?v=ranking-read-disabled-v20"></script>
 </body>
 </html>

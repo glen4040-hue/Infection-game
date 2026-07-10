@@ -572,18 +572,14 @@
   }
 
   async function refreshStartRanking() {
-    if (!window.loadTopRanking) {
-      setStartRankingStatus("랭킹 기능을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
-      return;
-    }
-    try {
-      setStartRankingStatus("랭킹을 불러오는 중...");
-      const rows = await window.loadTopRanking();
-      renderRankingInto(startRankingList, rows);
-      setStartRankingStatus(`동일 부서명·이름은 최고 기록만 반영한 TOP ${Math.min(100, rows.length)} 순위입니다.`);
-    } catch (error) {
-      console.error(error);
-      setStartRankingStatus("랭킹을 불러오지 못했습니다. 네트워크 또는 Firebase 설정을 확인해주세요.");
+    setStartRankingStatus("현재 참여자가 많아 순위 집계 중입니다. 점수는 정상 저장됩니다.");
+    if (startRankingList) {
+      startRankingList.innerHTML = `
+        <li class="rankingEmpty">
+          🏆 순위 집계 중입니다.<br>
+          잠시 후 다시 확인해주세요.
+        </li>
+      `;
     }
   }
 
@@ -606,33 +602,29 @@
   }
 
   async function refreshRanking() {
-    if (!window.loadTopRanking) {
-      setRankingStatus("랭킹 기능을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
-      return;
-    }
-
-    try {
-      setRankingStatus("랭킹을 불러오는 중...");
-      const rows = await window.loadTopRanking();
-      renderRanking(rows);
-      setRankingStatus(`동일 부서명·이름은 최고 기록만 반영합니다. TOP ${Math.min(100, rows.length)} 랭킹이며 100위 밖 기록도 서버에는 저장됩니다.`);
-    } catch (error) {
-      console.error(error);
-      setRankingStatus("랭킹을 불러오지 못했습니다. 네트워크 또는 Firebase 규칙을 확인해주세요.");
+    setRankingStatus("현재 참여자가 많아 순위 집계 중입니다. 점수는 정상 저장됩니다.");
+    if (rankingList) {
+      rankingList.innerHTML = `
+        <li class="rankingEmpty">
+          🏆 순위 집계 중입니다.<br>
+          잠시 후 다시 확인해주세요.
+        </li>
+      `;
     }
   }
 
   async function submitScoreAndRefreshRanking() {
-    const playTime = state.gameStartTime ? Math.round((Date.now() - state.gameStartTime) / 1000) : 0;
+    const playTime = state.gameStartTime
+      ? Math.round((Date.now() - state.gameStartTime) / 1000)
+      : 0;
 
     if (!window.saveGameScore) {
-      setRankingStatus("Firebase 연결 준비 중입니다. 점수 저장에 실패하면 새로고침 후 다시 시도해주세요.");
-      await refreshRanking();
+      setRankingStatus("점수 저장 기능을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
       return;
     }
 
     if (state.scoreSaved) {
-      await refreshRanking();
+      setRankingStatus("✅ 점수는 정상 저장되었습니다. 현재 순위는 집계 중입니다.");
       return;
     }
 
@@ -648,16 +640,18 @@
       state.lastScoreId = ref.id;
       state.scoreSaved = true;
 
-      setRankingStatus("점수 저장 완료! 랭킹을 불러오는 중...");
-      const rows = await window.loadTopRanking();
-      renderRanking(rows, state.lastScoreId);
-
-      const inTop100 = rows.some((row) => row.id === state.lastScoreId);
-      setRankingStatus(inTop100 ? "내 기록이 TOP 100에 표시되었습니다." : "점수는 저장되었습니다. 현재 기록은 TOP 100 밖입니다.");
+      setRankingStatus("✅ 점수는 정상 저장되었습니다. 현재 참여자가 많아 순위는 집계 중입니다.");
+      if (rankingList) {
+        rankingList.innerHTML = `
+          <li class="rankingEmpty">
+            🏆 순위 집계 중입니다.<br>
+            점수는 정상적으로 저장되었습니다.
+          </li>
+        `;
+      }
     } catch (error) {
       console.error(error);
-      setRankingStatus("점수 저장 또는 랭킹 불러오기에 실패했습니다. Firebase 설정을 확인해주세요.");
-      await refreshRanking();
+      setRankingStatus("❌ 점수 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
     }
   }
 
