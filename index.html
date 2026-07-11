@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <title>감염병으로부터 사랑의 병원을 지켜라!</title>
-  <link rel="stylesheet" href="./style.css?v=ranking-read-disabled-v20" />
+  <link rel="stylesheet" href="./style.css?v=secure-server-v1" />
 </head>
 <body>
 <main id="app">
@@ -123,55 +123,46 @@
 <audio id="bgmCenter" src="./assets/bgm_center.mp3" loop preload="auto"></audio>
   <audio id="bgmBattle" src="./assets/bgm_battle.mp3" loop preload="auto"></audio>
   <button id="soundToggle" class="soundToggle" type="button" aria-label="음악 켜기/끄기">🔊</button>
-
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      getDocs,
-      query,
-      orderBy,
-      limit,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBOCv9oYCBWNtyTpgVxTdMA41A91R2M7NU",
-      authDomain: "infection-game-vercel.firebaseapp.com",
-      projectId: "infection-game-vercel",
-      storageBucket: "infection-game-vercel.firebasestorage.app",
-      messagingSenderId: "461853420109",
-      appId: "1:461853420109:web:71e66d6978941353194a04"
+  <script>
+    window.startSecureGameSession = async function startSecureGameSession(player) {
+      const response = await fetch("/api/game-start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          department: player.department,
+          name: player.name
+        })
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok || !result.token) {
+        throw new Error(result.error || "SESSION_START_FAILED");
+      }
+      return result.token;
     };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    window.firebaseRankingReady = true;
 
     window.saveGameScore = async function saveGameScore(scoreData) {
-      const payload = {
-        department: String(scoreData.department || "부서 미입력").slice(0, 30),
-        name: String(scoreData.name || "익명").slice(0, 30),
-        score: Number(scoreData.score || 0),
-        playTime: Number(scoreData.playTime || 0),
-        userAgent: navigator.userAgent.slice(0, 180),
-        createdAt: serverTimestamp()
-      };
-
-      return await addDoc(collection(db, "scores"), payload);
+      const response = await fetch("/api/game-finish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: scoreData.sessionToken,
+          score: scoreData.score
+        })
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok) {
+        const error = new Error(result.message || result.error || "SCORE_SAVE_FAILED");
+        error.code = result.error || "SCORE_SAVE_FAILED";
+        throw error;
+      }
+      return result;
     };
 
+    // 현재는 읽기 할당량 보호를 위해 랭킹 조회를 계속 차단합니다.
     window.loadTopRanking = async function loadTopRanking() {
-      // Firestore 읽기 할당량 보호를 위해 랭킹 조회 일시 중지
       return [];
     };
   </script>
-
-
-  <script src="./game.js?v=ranking-read-disabled-v20"></script>
+  <script src="./game.js?v=secure-server-v1"></script>
 </body>
 </html>

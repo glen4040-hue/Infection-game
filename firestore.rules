@@ -1,0 +1,19 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 점수는 Vercel 서버 함수만 저장합니다.
+    // Firebase Admin SDK는 이 Rules를 우회하며 서비스 계정 IAM으로 인증합니다.
+    match /scores/{document} {
+      allow read, write: if false;
+    }
+
+    match /bestScores/{document} {
+      allow read, write: if false;
+    }
+
+    match /gameSubmissions/{document} {
+      allow read, write: if false;
+    }
+  }
+}

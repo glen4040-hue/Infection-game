@@ -208,6 +208,8 @@
     gameStartTime: 0,
     lastScoreId: null,
     scoreSaved: false,
+    sessionToken: null,
+    sessionStarting: false,
     audioUnlocked: false,
     muted: false
   };
@@ -431,9 +433,46 @@
     return true;
   }
 
-  function startGame() {
-    if (!validateStartForm()) return;
+  async function startGame() {
+    if (!validateStartForm() || state.sessionStarting) return;
     clearStartValidation();
+
+    const department = deptInput.value.trim();
+    const playerName = nameInput.value.trim();
+    const submitButton = startForm.querySelector('button[type="submit"]');
+
+    state.sessionStarting = true;
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "보안 세션 준비 중...";
+    }
+
+    try {
+      if (!window.startSecureGameSession) throw new Error("SESSION_API_NOT_READY");
+      state.sessionToken = await window.startSecureGameSession({
+        department,
+        name: playerName
+      });
+    } catch (error) {
+      console.error(error);
+      state.sessionStarting = false;
+      state.sessionToken = null;
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "게임 시작";
+      }
+      if (startWarning) {
+        startWarning.textContent = "게임 연결에 실패했습니다. 잠시 후 다시 시도해주세요.";
+      }
+      return;
+    }
+
+    state.sessionStarting = false;
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = "게임 시작";
+    }
+
     state.running = true;
     state.paused = false;
     state.score = 0;
@@ -446,8 +485,8 @@
     state.gameStartTime = Date.now();
     state.lastScoreId = null;
     state.scoreSaved = false;
-    state.department = deptInput.value.trim();
-    state.playerName = nameInput.value.trim();
+    state.department = department;
+    state.playerName = playerName;
     state.bubbleMessage = randomBubbleMessage();
     state.bubbleMessageTimer = 1.2;
 
@@ -634,7 +673,8 @@
         department: state.department || "부서 미입력",
         name: state.playerName || "익명",
         score: state.score,
-        playTime
+        playTime,
+        sessionToken: state.sessionToken
       });
 
       state.lastScoreId = ref.id;
@@ -651,7 +691,13 @@
       }
     } catch (error) {
       console.error(error);
-      setRankingStatus("❌ 점수 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      if (error && error.code === "IMPLAUSIBLE_SCORE") {
+        setRankingStatus("⚠️ 비정상적인 점수로 판단되어 저장되지 않았습니다.");
+      } else if (error && error.code === "SESSION_ALREADY_USED") {
+        setRankingStatus("✅ 이미 저장된 게임 결과입니다.");
+      } else {
+        setRankingStatus("❌ 점수 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      }
     }
   }
 
