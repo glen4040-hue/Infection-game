@@ -6,7 +6,13 @@ module.exports = async function handler(req, res) {
     return sendJson(res, 503, { ok: false, error: 'RANKING_DISABLED' });
   }
   try {
-    const snapshot = await getDb().collection('bestScores').orderBy('score', 'desc').limit(100).get();
+    // 동일 응답을 Vercel CDN에 5분간 캐시하여 Firestore 읽기 폭증을 방지한다.
+    res.setHeader('Vercel-CDN-Cache-Control', 's-maxage=300, stale-while-revalidate=60');
+    const snapshot = await getDb()
+      .collection('bestScores')
+      .orderBy('score', 'desc')
+      .limit(100)
+      .get();
     const rows = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     return sendJson(res, 200, { ok: true, rows });
   } catch (error) {

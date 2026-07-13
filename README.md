@@ -1,5 +1,10 @@
-# 감염병 예방 도구 선택 게임 - 서버 검증 버전
+# 감염병 게임 - 보안 저장 + 순위 재개 버전
 
-이 버전은 게임 로직을 유지하고 점수 저장만 Vercel Function을 통한 서버 검증 방식으로 변경했습니다.
+- Vercel 서버 검증 점수 저장 유지
+- Firestore 브라우저 직접 쓰기 차단 구조 유지
+- 부서명+이름별 최고점 TOP 100 랭킹 재개
+- 5분 CDN 캐시로 Firestore 읽기 보호
+- 비정상 참여 경고 문구를 빨간색으로 표시
+- 기존 scores → bestScores 일회성 재구축 API 포함
 
-배포 전 `DEPLOY_GUIDE.md`를 반드시 확인하세요.
+적용 순서는 `RANKING_RESTART_GUIDE.md`를 확인하세요.

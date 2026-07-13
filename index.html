@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <title>감염병으로부터 사랑의 병원을 지켜라!</title>
-  <link rel="stylesheet" href="./style.css?v=secure-server-v1" />
+  <link rel="stylesheet" href="./style.css?v=ranking-restored-v2" />
 </head>
 <body>
 <main id="app">
@@ -26,6 +26,7 @@
         <label>부서명 <input id="deptInput" placeholder="예: 감염관리실" maxlength="20" /></label>
         <label>이름 <input id="nameInput" placeholder="예: 홍길동" maxlength="20" /></label>
         <p class="privacyNote">입력한 부서명과 이름은 점수 집계 및 순위 확인 목적으로만 사용됩니다.</p>
+        <p class="integrityWarning">※ 비정상적인 경로 또는 방법으로 게임에 참여한 경우, 해당 점수는 무효 처리되며 순위 집계에서 제외됩니다.</p>
         <p id="startWarning" class="startWarning" role="alert" aria-live="polite"></p>
         <button class="primary" type="submit">게임 시작</button>
         <button id="startRankingBtn" class="rankingEntryBtn" type="button">
@@ -52,7 +53,8 @@
         </div>
         <button id="startRankingCloseBtn" class="rankingCloseBtn" type="button" aria-label="순위 닫기">✕</button>
       </div>
-      <p class="sub">현재 참여자가 많아 순위는 집계 중입니다.</p>
+      <p class="sub">부서명·이름별 최고점 기준 TOP 100입니다. 순위는 최대 5분 이내 반영됩니다.</p>
+      <p class="integrityWarning">※ 비정상적인 경로 또는 방법으로 게임에 참여한 경우, 해당 점수는 무효 처리되며 순위 집계에서 제외됩니다.</p>
       <div class="rankingBox startRankingBox">
         <div class="rankingHeader">
           <h3>🏆 TOP 100 랭킹</h3>
@@ -90,6 +92,7 @@
             <button id="rankingRefreshBtn" type="button" class="rankingRefresh">새로고침</button>
           </div>
           <p id="rankingStatus" class="rankingStatus">게임 종료 후 점수가 저장되고 랭킹이 표시됩니다.</p>
+          <p class="integrityWarning">※ 비정상적인 경로 또는 방법으로 게임에 참여한 경우, 해당 점수는 무효 처리되며 순위 집계에서 제외됩니다.</p>
           <ol id="rankingList" class="rankingList"></ol>
         </div>
 
@@ -158,11 +161,21 @@
       return result;
     };
 
-    // 현재는 읽기 할당량 보호를 위해 랭킹 조회를 계속 차단합니다.
+    // 서버 랭킹 API: bestScores TOP 100만 조회하며 Vercel CDN에서 5분간 캐시됩니다.
     window.loadTopRanking = async function loadTopRanking() {
-      return [];
+      const response = await fetch("/api/ranking", {
+        method: "GET",
+        headers: { "Accept": "application/json" }
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok) {
+        const error = new Error(result.message || result.error || "RANKING_LOAD_FAILED");
+        error.code = result.error || "RANKING_LOAD_FAILED";
+        throw error;
+      }
+      return Array.isArray(result.rows) ? result.rows : [];
     };
   </script>
-  <script src="./game.js?v=secure-server-v1"></script>
+  <script src="./game.js?v=ranking-restored-v2"></script>
 </body>
 </html>

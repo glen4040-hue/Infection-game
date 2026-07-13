@@ -611,14 +611,25 @@
   }
 
   async function refreshStartRanking() {
-    setStartRankingStatus("현재 참여자가 많아 순위 집계 중입니다. 점수는 정상 저장됩니다.");
-    if (startRankingList) {
-      startRankingList.innerHTML = `
-        <li class="rankingEmpty">
-          🏆 순위 집계 중입니다.<br>
-          잠시 후 다시 확인해주세요.
-        </li>
-      `;
+    if (!window.loadTopRanking) {
+      setStartRankingStatus("순위 기능을 불러오는 중입니다.");
+      return;
+    }
+    try {
+      setStartRankingStatus("순위를 불러오는 중...");
+      const rows = await window.loadTopRanking();
+      renderRankingInto(startRankingList, rows);
+      setStartRankingStatus(`부서명·이름별 최고점 기준 ${rows.length}명 · 최대 5분 이내 반영`);
+    } catch (error) {
+      console.error(error);
+      if (error && error.code === "RANKING_DISABLED") {
+        setStartRankingStatus("현재 순위 집계 준비 중입니다.");
+      } else {
+        setStartRankingStatus("순위를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
+      }
+      if (startRankingList) {
+        startRankingList.innerHTML = '<li class="rankingEmpty">순위 조회에 실패했습니다.</li>';
+      }
     }
   }
 
@@ -641,14 +652,25 @@
   }
 
   async function refreshRanking() {
-    setRankingStatus("현재 참여자가 많아 순위 집계 중입니다. 점수는 정상 저장됩니다.");
-    if (rankingList) {
-      rankingList.innerHTML = `
-        <li class="rankingEmpty">
-          🏆 순위 집계 중입니다.<br>
-          잠시 후 다시 확인해주세요.
-        </li>
-      `;
+    if (!window.loadTopRanking) {
+      setRankingStatus("순위 기능을 불러오는 중입니다.");
+      return;
+    }
+    try {
+      setRankingStatus("순위를 불러오는 중...");
+      const rows = await window.loadTopRanking();
+      renderRanking(rows, null);
+      setRankingStatus(`부서명·이름별 최고점 기준 ${rows.length}명 · 최대 5분 이내 반영`);
+    } catch (error) {
+      console.error(error);
+      if (error && error.code === "RANKING_DISABLED") {
+        setRankingStatus("점수는 저장되었으며, 순위 집계는 준비 중입니다.");
+      } else {
+        setRankingStatus("점수는 저장되었으나 순위를 불러오지 못했습니다.");
+      }
+      if (rankingList) {
+        rankingList.innerHTML = '<li class="rankingEmpty">순위 조회에 실패했습니다.</li>';
+      }
     }
   }
 
@@ -663,7 +685,8 @@
     }
 
     if (state.scoreSaved) {
-      setRankingStatus("✅ 점수는 정상 저장되었습니다. 현재 순위는 집계 중입니다.");
+      setRankingStatus("✅ 이미 저장된 점수입니다. 순위를 불러오는 중...");
+      await refreshRanking();
       return;
     }
 
@@ -680,15 +703,8 @@
       state.lastScoreId = ref.id;
       state.scoreSaved = true;
 
-      setRankingStatus("✅ 점수는 정상 저장되었습니다. 현재 참여자가 많아 순위는 집계 중입니다.");
-      if (rankingList) {
-        rankingList.innerHTML = `
-          <li class="rankingEmpty">
-            🏆 순위 집계 중입니다.<br>
-            점수는 정상적으로 저장되었습니다.
-          </li>
-        `;
-      }
+      setRankingStatus("✅ 점수가 정상 저장되었습니다. 순위를 불러오는 중...");
+      await refreshRanking();
     } catch (error) {
       console.error(error);
       if (error && error.code === "IMPLAUSIBLE_SCORE") {

@@ -595,3 +595,25 @@ input.inputError{border-color:#ff7777 !important;box-shadow:0 0 0 3px rgba(255,1
   #startScreen .rankingEntryBtn{padding:10px 14px}
   #startScreen .guide{margin-top:7px;padding:8px 10px;font-size:12px}
 }
+
+
+/* 점수 공정성 안내 */
+.integrityWarning{
+  margin:6px 0 2px;
+  padding:8px 10px;
+  border:1px solid rgba(255,86,86,.55);
+  border-radius:10px;
+  background:rgba(170,20,20,.18);
+  color:#ff7676;
+  font-size:12px;
+  font-weight:900;
+  line-height:1.45;
+  text-align:left;
+  text-shadow:0 0 8px rgba(255,60,60,.18);
+}
+#startScreen .integrityWarning{margin-top:4px}
+.startRankingPanel .integrityWarning{margin-top:8px}
+.rankingBox .integrityWarning{margin-bottom:10px}
+@media(max-height:760px){
+  #startScreen .integrityWarning{font-size:10px;padding:6px 8px;line-height:1.3}
+}
