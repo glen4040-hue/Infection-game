@@ -91,7 +91,7 @@ function getClientIp(req) {
 
 function plausibleMaxScore(elapsedSeconds) {
   // 실제 게임보다 넉넉한 상한선이다. 정상 플레이는 막지 않되 비현실적인 점수만 거부한다.
-  return Math.min(3000, 30 + Math.ceil(elapsedSeconds / 2) * 15);
+  return Math.min(250000, 30 + Math.ceil(elapsedSeconds / 2) * 15);
 }
 
 async function updateBestScoreSafely(db, scoreData) {

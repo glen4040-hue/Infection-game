@@ -29,7 +29,7 @@ module.exports = async function handler(req, res) {
     department,
     name,
     startedAt: now,
-    expiresAt: now + 30 * 60 * 1000
+    expiresAt: now + 12 * 60 * 60 * 1000
   });
 
   return sendJson(res, 200, { ok: true, token });

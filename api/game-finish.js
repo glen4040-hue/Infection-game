@@ -31,12 +31,12 @@ module.exports = async function handler(req, res) {
     if (now > Number(payload.expiresAt || 0)) {
       return sendJson(res, 400, { ok: false, error: 'SESSION_EXPIRED' });
     }
-    if (!Number.isInteger(score) || score < 0 || score > 3000) {
+    if (!Number.isInteger(score) || score < 0 || score > 250000) {
       return sendJson(res, 400, { ok: false, error: 'INVALID_SCORE' });
     }
 
     const elapsedSeconds = Math.max(0, Math.floor((now - Number(payload.startedAt)) / 1000));
-    if (elapsedSeconds < 5 || elapsedSeconds > 30 * 60) {
+    if (elapsedSeconds < 5 || elapsedSeconds > 12 * 60 * 60) {
       return sendJson(res, 400, { ok: false, error: 'INVALID_PLAY_TIME' });
     }
 
