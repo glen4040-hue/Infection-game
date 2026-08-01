@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>관리자 순위 CSV 내보내기</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#06162d;color:#f5fbff}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;display:grid;place-items:center;padding:20px}
+    main{width:min(100%,480px);padding:26px;border:1px solid rgba(255,255,255,.16);border-radius:22px;background:#0c2850;box-shadow:0 24px 70px rgba(0,0,0,.4)}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(120,214,255,.12);color:#78d6ff;font-size:12px;font-weight:800}
+    h1{margin:14px 0 8px;font-size:26px}.sub{margin:0 0 20px;color:#c7dbef;line-height:1.55;font-size:14px}
+    label{display:grid;gap:7px;color:#c7dbef;font-size:13px;font-weight:700}
+    input{width:100%;padding:13px 14px;border:1px solid rgba(255,255,255,.2);border-radius:12px;background:rgba(255,255,255,.07);color:#fff;font-size:15px}
+    button{width:100%;margin-top:12px;padding:14px;border:0;border-radius:13px;background:linear-gradient(180deg,#2f79c7,#174e91);color:#fff;font-size:15px;font-weight:900;cursor:pointer}
+    button:disabled{opacity:.55;cursor:wait}.status{min-height:22px;margin:12px 0 0;color:#bfe6ff;font-size:13px;line-height:1.45}.note{margin:16px 0 0;padding:12px;border-radius:12px;background:rgba(255,255,255,.05);color:#b9cde2;font-size:12px;line-height:1.5}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">SRGH Administrator</div>
+    <h1>순위 CSV 내보내기</h1>
+    <p class="sub">Vercel 환경변수에 설정한 <strong>RANKING_ADMIN_SECRET</strong>을 입력하면 bestScores 전체를 점수순으로 다운로드합니다.</p>
+    <label for="secretInput">관리자 비밀번호
+      <input id="secretInput" type="password" autocomplete="off" placeholder="RANKING_ADMIN_SECRET" />
+    </label>
+    <button id="downloadBtn" type="button">bestScores.csv 다운로드</button>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <p class="note">비밀번호는 브라우저에 저장하지 않으며 CSV 다운로드 요청에만 사용됩니다. 이 페이지는 종료 안내 화면에 연결되어 있지 않습니다.</p>
+  </main>
+  <script>
+    const input = document.getElementById('secretInput');
+    const button = document.getElementById('downloadBtn');
+    const status = document.getElementById('status');
+
+    async function downloadRanking() {
+      const secret = input.value.trim();
+      if (!secret) {
+        status.textContent = '관리자 비밀번호를 입력해 주세요.';
+        input.focus();
+        return;
+      }
+
+      button.disabled = true;
+      status.textContent = 'CSV를 생성하는 중입니다...';
+
+      try {
+        const response = await fetch('/api/export-ranking', {
+          headers: { Authorization: `Bearer ${secret}` }
+        });
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.error === 'UNAUTHORIZED' ? '관리자 비밀번호가 일치하지 않습니다.' : 'CSV 생성에 실패했습니다.');
+        }
+
+        const blob = await response.blob();
+        const disposition = response.headers.get('Content-Disposition') || '';
+        const matched = disposition.match(/filename="([^"]+)"/);
+        const filename = matched ? matched[1] : 'bestScores.csv';
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        status.textContent = 'CSV 다운로드가 완료되었습니다.';
+      } catch (error) {
+        status.textContent = error.message || 'CSV 다운로드에 실패했습니다.';
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    button.addEventListener('click', downloadRanking);
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') downloadRanking();
+    });
+  </script>
+</body>
+</html>
